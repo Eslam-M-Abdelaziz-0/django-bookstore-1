@@ -42,12 +42,15 @@
 
 	<div class="container">
 		<div class="row mb-4">
-			<form class="w-75 mx-auto">
+			<form method="get" action="{% url "search" %}" class="w-75 mx-auto">
 				<div class="input-group">
 					<div class="input-group-prepend d-none d-md-block">
 						<span class="input-group-text">BookStore</span>
 					</div>
-					<input class="form-control" type="text" placeholder="Найти книгу...">
+					<input class="form-control" type="text" placeholder="Найти книгу..." name="query" value="{{ form.query.data }}">
+					<input type="hidden" name="sort" value="relevance">
+					<input type="hidden" name="maxprice" value="99999">
+					<input type="hidden" name="category" value="">
 					<span class="input-group-append">
 						<button class="btn btn-success" type="submit">Найти</button>
 					</span>
@@ -104,7 +107,7 @@
 			<div class="col-md-4 pl-0">
 				{% for category in category_block %}
 				<h5>
-					<a href="#">{{ category.name }}</a>
+					<a href="/search?query=&maxprice=9999&sort=relevance&category={{ category.pk }}">{{ category.name }}</a>
 				</h5>
 				{% endfor %}
 			</div>

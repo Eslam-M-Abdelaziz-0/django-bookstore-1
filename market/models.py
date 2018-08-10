@@ -77,6 +77,7 @@ class Book(models.Model):
     authors = models.ManyToManyField("Author", related_name="books")
     categories = models.ManyToManyField("Category", related_name="books")
     cover = models.ImageField(upload_to="covers")
+    price = models.PositiveIntegerField()
     printed_year = models.PositiveSmallIntegerField()
     holders = models.ManyToManyField(
         "Customer",
@@ -84,6 +85,7 @@ class Book(models.Model):
         blank=True,
         editable=False
     )
+    holders_count = models.PositiveIntegerField(default=0, editable=False)
     shoppers = models.ManyToManyField(
         "Customer",
         related_name="shopping_cart",
