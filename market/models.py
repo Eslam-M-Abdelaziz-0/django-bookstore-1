@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -17,32 +18,17 @@ class Category(models.Model):
         return self.name
 
 
-class ActivationLinks(models.Model):
-    customer = models.ForeignKey(
-        "Customer",
-        on_delete=models.CASCADE,
-        related_name="+"
-    )
-    link = models.CharField(max_length=128)
+class ActivationLink(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    link = models.CharField(max_length=36)
 
     def __str__(self):
-        return str(self.customer) + ":" + self.link
-
-
-class Customer(models.Model):
-    name = models.CharField(max_length=120)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)
-    reg_date = models.DateField(auto_now_add=True)
-    activated = models.BooleanField(default=False)
-
-    def __str__(self):
-        return ", ".join((self.name, self.email))
-
+        return str(self.user) + ":" + self.link
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        "Customer",
+        User,
         on_delete=models.CASCADE,
         related_name="comments"
     )
@@ -80,14 +66,14 @@ class Book(models.Model):
     price = models.PositiveIntegerField()
     printed_year = models.PositiveSmallIntegerField()
     holders = models.ManyToManyField(
-        "Customer",
+        User,
         related_name="books",
         blank=True,
         editable=False
     )
     holders_count = models.PositiveIntegerField(default=0, editable=False)
     shoppers = models.ManyToManyField(
-        "Customer",
+        User,
         related_name="shopping_cart",
         blank=True,
         editable=False

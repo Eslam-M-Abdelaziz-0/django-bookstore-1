@@ -1,10 +1,15 @@
+import uuid
 import difflib
 import functools
 
-from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
+from django.contrib.auth import login, authenticate
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
-from .models import Book, Category
-from .forms import FilterSearchForm
+
+from .models import Book, Category, ActivationLink
+from .forms import FilterSearchForm, SignUpForm
 
 # Create your views here.
 
@@ -73,3 +78,54 @@ def search_page(request):
         books=books,
         form=form
     ))
+
+
+def signup_page(request):
+    if request.user.is_authenticated:
+        raise Http404
+    
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            confirm_link = ActivationLink.objects.create(
+                user=user, link=str(uuid.uuid4())
+            )
+            confirm_link.save()
+            user.email_user(
+                "Инструкция по подтверждению аккаунта",
+                render_to_string(
+                    "market/account_confirm_email.html",
+                    dict(
+                        token=confirm_link.link,
+                        domain=get_current_site(request).domain
+                    )
+                )
+            )
+            return redirect("confirm_done")
+    else:
+        form = SignUpForm()
+
+    return render(request, "market/account_sign_up.html", dict(form=form))
+
+def confirm_account(request, uuid):
+    link = ActivationLink.objects.filter(link=str(uuid)).first()
+    if link:
+        user = link.user
+        link.delete()
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return redirect("confirm_success")
+        
+    return redirect("/")
+    
+def confirm_success_page(request):
+    return render(request, "market/account_confirm_success.html", dict())
+
+def confirm_done_page(request):
+    return render(request, "market/account_confirm_done.html", dict())
+
+    
