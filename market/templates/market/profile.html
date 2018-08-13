@@ -1,0 +1,28 @@
+{% extends "market/base_header_with_search.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+    <h3>Книги, которые вы купили</h3>
+    <ul>
+    {% for book in books.all %}
+        <li><a href="{% url 'product_page' book.pk %}">{{ book }}</a></li>
+    {% empty %}
+        <li>Вы еще не приобрели ни одной книги</li>
+    {% endfor %}
+    </ul>
+</div>
+</div>
+<div class="row my-2">
+    <div class="col-12">
+        <h3>Книги, к которым вы оставили отзыв</h3>
+        <ul>
+        {% for comment in comments.all %}
+            <li><a href="{% url 'product_page' comment.book.pk %}">{{ comment.book }}</a></li>
+        {% empty %}
+            <li>Вы не оставляли свой отзыв ни для одной книги</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

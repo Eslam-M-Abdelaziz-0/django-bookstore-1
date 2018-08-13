@@ -4,12 +4,14 @@ import functools
 
 from django.template.loader import render_to_string
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 
-from .models import Book, Category, ActivationLink
-from .forms import FilterSearchForm, SignUpForm
+from .models import Book, Category, ActivationLink, Comment
+from .forms import FilterSearchForm, SignUpForm, CartForm, CommentForm
 
 # Create your views here.
 
@@ -26,13 +28,32 @@ def index_page(request):
 
 
 def product_page(request, pk):
-    return render(
-        request,
-        "market/product.html",
-        dict(
-            book=get_object_or_404(Book, pk=pk)
-        )
+    book = get_object_or_404(Book, pk=pk)
+    is_comment_allowed = (
+        not request.user.comments.filter(book__pk=pk).exists()
+        and book in request.user.books.all()
     )
+    if request.method == "GET" or not is_comment_allowed:
+        return render(
+            request, "market/product.html",
+            dict(book=book, is_comment_allowed=is_comment_allowed)
+        )
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        print("comment form valid")
+        comment = form.save(commit=False)
+        comment.book = book
+        comment.author = request.user
+        comment.save()
+        if book.score == 0:
+            book.score = comment.score
+        else:
+            book.score = (book.score + comment.score) / 2.0
+        book.save()
+    print(form.errors)
+    
+    return redirect("product_page", pk=pk)
 
 
 def _compute_similarity_score(text1, text2, comp="difflib"):
@@ -121,11 +142,76 @@ def confirm_account(request, uuid):
         return redirect("confirm_success")
         
     return redirect("/")
-    
+
+@login_required
 def confirm_success_page(request):
     return render(request, "market/account_confirm_success.html", dict())
 
 def confirm_done_page(request):
     return render(request, "market/account_confirm_done.html", dict())
 
-    
+@login_required
+def profile_page(request):
+    return render(
+        request, "market/profile.html",
+        dict(
+            books=request.user.books,
+            comments=request.user.comments
+        )
+    )
+
+@login_required
+def shopping_cart_page(request):
+    return render(
+        request, "market/shopping_cart.html",
+        dict(books=request.user.shopping_cart)
+    )
+
+@login_required
+@require_POST
+def shopping_cart_submit(request):
+    books = list(request.user.shopping_cart.all())
+    request.user.books.add(*books)
+    request.user.shopping_cart.clear()
+    request.user.save()
+
+    for book in books:
+        book.holders_count += 1
+        book.save()
+
+    return redirect("shopping_cart")
+
+@login_required
+@require_POST
+def shopping_cart_add(request):
+    form = CartForm(request.POST)
+    if not form.is_valid():
+        print(form.errors)
+        print("not valid add")
+        return redirect("/")
+    book_pk = form.cleaned_data.get("book_pk")
+    try:
+        book = Book.objects.get(pk=book_pk)
+    except Book.DoesNotExists:
+        print("not valid add, not exists book")
+        return redirect("/")
+
+    request.user.shopping_cart.add(book)
+    request.user.save()
+    return redirect(form.cleaned_data.get("next_link"))
+
+@login_required
+@require_POST
+def shopping_cart_remove(request):
+    form = CartForm(request.POST)
+    if not form.is_valid():
+        return redirect("/")
+    book_pk = form.cleaned_data.get("book_pk")
+    try:
+        book = Book.objects.get(pk=book_pk)
+    except Book.DoesNotExists:
+        return redirect("/")
+
+    request.user.shopping_cart.remove(book)
+    request.user.save()
+    return redirect(form.cleaned_data.get("next_link"))

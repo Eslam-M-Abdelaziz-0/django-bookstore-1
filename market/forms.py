@@ -1,8 +1,9 @@
 from django import forms
+from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Category
+from .models import Category, Comment
 
 
 class FilterSearchForm(forms.Form):
@@ -48,3 +49,12 @@ class SignUpForm(UserCreationForm):
             "username", "password1", "password2",
         )
 
+class CartForm(forms.Form):
+    book_pk = forms.IntegerField(min_value=1)
+    next_link = forms.CharField(max_length=240)
+
+class CommentForm(ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = ["score", "title", "content"]

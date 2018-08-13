@@ -1,0 +1,14 @@
+{% extends "market/base_header_no_search.html" %}
+
+{% block header_menu %}
+{{ block.super }}
+<form class="form-inline mt-2 mt-md-0 d-none d-md-block">
+        <div class="input-group">
+            <input class="form-control" type="text" placeholder="Найти книгу...">
+            <span class="input-group-append">
+                <button class="btn btn-success" type="submit">Найти</button>
+            </span>
+        </div>
+</form>
+{% endblock %}
+

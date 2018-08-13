@@ -1,151 +1,117 @@
-<!DOCTYPE HTML>
-<html>
+{% extends "market/base_header_with_search.html" %}
 
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="content-type" content="text/html">
-	<title>Book Store</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-	 crossorigin="anonymous">
-	<style>
-	</style>
-</head>
-
-<body>
-
-	<header class="mb-4">
-		<nav class="navbar navbar-expand-md navbar-dark bg-dark">
-			<a class="navbar-brand" href="/">BookStore</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-			 aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item">
-						<a class="nav-link" href="#">Мой профиль</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Моя корзина</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Выйти</a>
-					</li>
-				</ul>
-			</div>
-			<form class="form-inline mt-2 mt-md-0 d-none d-md-block">
-				<div class="input-group">
-					<input class="form-control" type="text" placeholder="Найти книгу...">
-					<span class="input-group-append">
-						<button class="btn btn-success" type="submit">Найти</button>
-					</span>
-				</div>
-			</form>
-		</nav>
-	</header>
-
-	<div class="container">
-
-		<div class="row">
-			<div class="col-md-3">
-				<img src="{{ book.cover.url }}" class="img-fluid">
-			</div>
-			<div class="col-md-9">
-				<h2>{{ book.title }}</h2>
-				<p>
-				Автор: 
-				{% for author in book.authors.all %}
-				{{ author.name }}
-				{% if not forloop.last %}, {% endif %}
-				{% endfor %}
-				</p>
-				<p>Год: {{ book.printed_year }}</p>
-				<p>
-					<span>Рейтинг:</span>
-					{% if book.score < 0.5 %}
-					☆☆☆☆☆
-					{% elif book.score >= 0.5 and book.score < 1.5 %}
-					★☆☆☆☆
-					{% elif book.score >= 1.5 and book.score < 2.5 %}
-					★★☆☆☆
-					{% elif book.score >= 2.5 and book.score < 3.5 %}
-					★★★☆☆
-					{% elif book.score >= 3.5 and book.score < 4.5 %}
-					★★★★☆
-					{% else %}
-					★★★★★
-					{% endif %}
-				</p>
-				<div>
-					<form style="display:inline">
-						<button class="btn btn-success" onclick="$(this).text('В корзине');" type="submit">
-							Добавить в корзину
-						</button>
-					</form>
-					<button class="btn" onclick="$('#review-form').toggle();">Добавить отзыв</button>
-				</div>
-			</div>
-		</div>
-
-		<div class="row my-5" id="review-form" style="display:none">
-			<div class="col-12">
-				<h3>Оставьте свой отзыв:</h3>
-				<div></div>
-				<form class="w-50">
-					<label for="stars_count">Оцените книгу</label>
-					<select id="stars_count">
-						<option value="★☆☆☆☆">★☆☆☆☆</option>
-						<option value="★★☆☆☆">★★☆☆☆</option>
-						<option value="★★★☆☆">★★★☆☆</option>
-						<option value="★★★★☆">★★★★☆</option>
-						<option value="★★★★★">★★★★★</option>
-					</select>
-					<input type="text" class="form-control my-2" id="title" placeholder="Заголовок отзыва">
-					<textarea class="form-control my-2" id="review" placeholder="Текст отзыва"></textarea>
-					<button type="submit" class="btn btn-primary my-2">Сохранить отзыв</button>
-				</form>
-			</div>
-		</div>
-		<div class="row mt-5">
-			<div>
-				<h3>Отзывы:</h2>
-			</div>
-		</div>
-		{% for review in book.comments.all %}
-		<div class="row mt-3 border-bottom">
-			<div class="col-3">
-				<p class="text-primary">
-					{% if review.score < 0.5 %}
-					☆☆☆☆☆
-					{% elif review.score >= 0.5 and review.score < 1.5 %}
-					★☆☆☆☆
-					{% elif review.score >= 1.5 and review.score < 2.5 %}
-					★★☆☆☆
-					{% elif review.score >= 2.5 and review.score < 3.5 %}
-					★★★☆☆
-					{% elif review.score >= 3.5 and review.score < 4.5 %}
-					★★★★☆
-					{% else %}
-					★★★★★
-					{% endif %}
-				</p>
-				<p>{{ review.author.name }}</p>
-			</div>
-			<div class="col-9">
-				<h5>{{ review.title }}</h5>
-				<p>{{ review.content }}</p>
-			</div>
-		</div>
-		{% endfor %}
+{% block content %}
+<div class="row">
+	<div class="col-md-3">
+		<img src="{{ book.cover.url }}" class="img-fluid">
 	</div>
+	<div class="col-md-9">
+		<h2>{{ book.title }}</h2>
+		<p>
+		Автор: 
+		{% for author in book.authors.all %}
+		{{ author.name }}
+		{% if not forloop.last %}, {% endif %}
+		{% endfor %}
+		</p>
+		<p>Год: {{ book.printed_year }}</p>
+		<p>
+			<span>Рейтинг:</span>
+			{% if book.score < 0.5 %}
+			☆☆☆☆☆
+			{% elif book.score >= 0.5 and book.score < 1.5 %}
+			★☆☆☆☆
+			{% elif book.score >= 1.5 and book.score < 2.5 %}
+			★★☆☆☆
+			{% elif book.score >= 2.5 and book.score < 3.5 %}
+			★★★☆☆
+			{% elif book.score >= 3.5 and book.score < 4.5 %}
+			★★★★☆
+			{% else %}
+			★★★★★
+			{% endif %}
+		</p>
+		<div>
+			{% if book in user.shopping_cart.all %}
+			<form method="post" style="display:inline" action="{% url 'shopping_cart_remove' %}">
+					{% csrf_token %}
+					<input type="hidden" name="next_link" value="{{ request.path }}">
+					<input type="hidden" name="book_pk" value="{{ book.pk }}">
+					<button class="btn btn-success" type="submit">
+						Выложить из корзины
+					</button>
+			</form>
+			{% else %}
+			<form method="post" style="display:inline" action="{% url 'shopping_cart_add' %}">
+					{% csrf_token %}
+					<input type="hidden" name="next_link" value="{{ request.path }}">
+					<input type="hidden" name="book_pk" value="{{ book.pk }}">
+					<button class="btn btn-success" type="submit">
+						Добавить в корзину
+					</button>
+				</form>
+			{% endif %}
+			{% if is_comment_allowed %}
+			<button class="btn" onclick="$('#review-form').toggle();">Добавить отзыв</button>
+			{% endif %}
+		</div>
+	</div>
+</div>
 
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-	 crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-	 crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-	 crossorigin="anonymous"></script>
-</body>
-
-</html>
+<div class="row my-5" id="review-form" style="display:none">
+	<div class="col-12">
+		<h3>Оставьте свой отзыв:</h3>
+		<div></div>
+		<form class="w-50" method="post">
+			{% csrf_token %}
+			{% comment %} <input type="hidden" name="book_pk" value="{{ book.pk }}"> {% endcomment %}
+			<label for="stars_count">Оцените книгу</label>
+			<select id="stars_count" name="score">
+				<option value="1">★☆☆☆☆</option>
+				<option value="2">★★☆☆☆</option>
+				<option value="3">★★★☆☆</option>
+				<option value="4">★★★★☆</option>
+				<option value="5">★★★★★</option>
+			</select>
+			<input type="text" class="form-control my-2" id="title" name="title" placeholder="Заголовок отзыва">
+			<textarea class="form-control my-2" id="review" name="content" placeholder="Текст отзыва"></textarea>
+			<button type="submit" class="btn btn-primary my-2">Сохранить отзыв</button>
+		</form>
+	</div>
+</div>
+<div class="row mt-5">
+	<div>
+		<h3>Отзывы:</h2>
+	</div>
+</div>
+{% for review in book.comments.all %}
+<div class="row mt-3 border-bottom">
+	<div class="col-3">
+		<p class="text-primary">
+			{% if review.score < 0.5 %}
+			☆☆☆☆☆
+			{% elif review.score >= 0.5 and review.score < 1.5 %}
+			★☆☆☆☆
+			{% elif review.score >= 1.5 and review.score < 2.5 %}
+			★★☆☆☆
+			{% elif review.score >= 2.5 and review.score < 3.5 %}
+			★★★☆☆
+			{% elif review.score >= 3.5 and review.score < 4.5 %}
+			★★★★☆
+			{% else %}
+			★★★★★
+			{% endif %}
+		</p>
+		<p>{{ review.author.first_name }} {{ review.author.last_name }}</p>
+	</div>
+	<div class="col-9">
+		<h5>{{ review.title }}</h5>
+		<p>{{ review.content }}</p>
+	</div>
+</div>
+{% empty %}
+<div class="row">
+	<p>Пока еще никто не оставил отзыва к этой книге</p>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,85 +1,62 @@
-<!DOCTYPE HTML>
-<html>
+{% extends "market/base_header_plain.html" %}
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="content-type" content="text/html">
-    <title>Book Store</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-        crossorigin="anonymous">
-    <style>
-        ul {
-            list-style-type: none;
-        }
-        input, button, li, p {
-            max-width: 420px;
-        }
-    </style>
-</head>
+{% block css %}
+ul {
+    list-style-type: none;
+}
+input, button, li, p {
+    max-width: 420px;
+}
+{% endblock %}
 
-<body>
-    <header class="mb-4">
-        <nav class="navbar navbar-dark bg-dark">
-            <a class="navbar-brand" href="/">BookStore</a>
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Регистрация</a>
-                </li>
-            </ul>
-        </nav>
-    </header>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <ul class="text-danger px-0">
+                {% for error in form.non_field_errors %}
+                <li>{{ error | escape }}</li>
+                {% endfor %}
+        </ul>
+        <p class="text-danger">
+        {% if next %}
+            {% if user.is_authenticated %}
+            У вашего аккаунта нет доступа к запрашиваемой странице. Вы можете войти в аккаунт, у которого есть доступ
+            {% else %}
+            Войдите, что просматривать эту страницу
+            {% endif %}
+        {% endif %}
+        </p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <h2>Войдите:</h2>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="input_email">Email:</label>
+                <input type="email" name="username" class="form-control" id="input_email" placeholder="Введите Email">
                 <ul class="text-danger px-0">
-                        {% for error in form.non_field_errors %}
+                        {% for error in form.username.errors %}
                         <li>{{ error | escape }}</li>
                         {% endfor %}
                 </ul>
-                <p class="text-danger">
-                {% if next %}
-                    {% if user.is_authenticated %}
-                    У вашего аккаунта нет доступа к запрашиваемой странице. Вы можете войти в аккаунт, у которого есть доступ
-                    {% else %}
-                    Войдите, что просматривать эту страницу
-                    {% endif %}
-                {% endif %}
-                </p>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <h2>Войдите:</h2>
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="input_email">Email:</label>
-                        <input type="email" name="username" class="form-control" id="input_email" placeholder="Введите Email">
-                        <ul class="text-danger px-0">
-                                {% for error in form.username.errors %}
-                                <li>{{ error | escape }}</li>
-                                {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="form-group">
-                        <label for="input_password">Пароль:</label>
-                        <input type="password" name="password" class="form-control" id="input_password" placeholder="Введите пароль">
-                        <ul class="text-danger px-0">
-                                {% for error in form.password.errors %}
-                                <li>{{ error | escape }}</li>
-                                {% endfor %}
-                        </ul>
-                    </div>
-                    <input type="hidden" name="next" value="{{ next }}">
-                    <button type="submit" class="btn btn-primary btn-block">Войти</button>
-                    <small>
-                            <a href="{% url 'password_reset' %}">Сбросить пароль?</a>
-                    </small>
-                </form>
+            <div class="form-group">
+                <label for="input_password">Пароль:</label>
+                <input type="password" name="password" class="form-control" id="input_password" placeholder="Введите пароль">
+                <ul class="text-danger px-0">
+                        {% for error in form.password.errors %}
+                        <li>{{ error | escape }}</li>
+                        {% endfor %}
+                </ul>
             </div>
-
-        </div>
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="btn btn-primary btn-block">Войти</button>
+            <small>
+                    <a href="{% url 'password_reset' %}">Сбросить пароль?</a>
+            </small>
+        </form>
     </div>
-</body>
-
-</html>
+</div>
+{% endblock %}

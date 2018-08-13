@@ -1,0 +1,26 @@
+{% extends "market/base.html" %}
+
+{% block header_menu %}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">Мой профиль</a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="{% url 'shopping_cart' %}">Моя корзина</a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Войти</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'signup_page' %}">Регистрация</a>
+            </li>
+            {% endif %}
+        </ul>
+</div>
+{% endblock %}

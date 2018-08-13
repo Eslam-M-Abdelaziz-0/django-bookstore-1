@@ -78,12 +78,7 @@ class Book(models.Model):
         blank=True,
         editable=False
     )
-    score = models.DecimalField(
-        max_digits=1,
-        decimal_places=1,
-        default=0,
-        editable=False
-    )
+    score = models.FloatField(default=0, editable=False)
 
     def __str__(self):
         authors = ", ".join([str(author) for author in self.authors.all()])
