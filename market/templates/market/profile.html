@@ -3,6 +3,11 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
+    Вы можете изменить свой пароль на сайте <a href="{% url 'password_change' %}"> здесь</a>
+    </div>
+</div>
+<div class="row my-4">
+    <div class="col-12">
     <h3>Книги, которые вы купили</h3>
     <ul>
     {% for book in books.all %}
