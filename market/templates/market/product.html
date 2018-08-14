@@ -31,7 +31,11 @@
 			★★★★★
 			{% endif %}
 		</p>
+		{% if user.is_authenticated %}
+		<p>Цена: <span class="font-weight-bold">{{ book.price }}₽</span></p>
+		{% endif %}
 		<div>
+			{% if user.is_authenticated %}
 			{% if book in user.shopping_cart.all %}
 			<form method="post" style="display:inline" action="{% url 'shopping_cart_remove' %}">
 					{% csrf_token %}
@@ -53,6 +57,9 @@
 			{% endif %}
 			{% if is_comment_allowed %}
 			<button class="btn" onclick="$('#review-form').toggle();">Добавить отзыв</button>
+			{% endif %}
+			{% else %}
+			<a href="{% url 'login' %}" role="button" class="btn btn-success">Купить за {{ book.price }}₽</a>
 			{% endif %}
 		</div>
 	</div>

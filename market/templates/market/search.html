@@ -92,6 +92,7 @@
 				<img class="card-img-top" src="{{ book.cover.url }}">
 				<div class="card-body">
 					<a href="{% url "product_page" book.pk %}" class="card-text">{{ book.title }}</a>
+					<div class="card-text font-weight-bold">{{ book.price }}₽</div>
 					<div class="card-text">
 						<small class="text-muted">
 						{% for author in book.authors.all %}

@@ -29,10 +29,15 @@ def index_page(request):
 
 def product_page(request, pk):
     book = get_object_or_404(Book, pk=pk)
-    is_comment_allowed = (
-        not request.user.comments.filter(book__pk=pk).exists()
-        and book in request.user.books.all()
-    )
+
+    if not request.user.is_authenticated:
+        is_comment_allowed = False
+    else:
+        is_comment_allowed = (
+            not request.user.comments.filter(book__pk=pk).exists()
+            and book in request.user.books.all()
+        )
+    
     if request.method == "GET" or not is_comment_allowed:
         return render(
             request, "market/product.html",
@@ -41,7 +46,6 @@ def product_page(request, pk):
 
     form = CommentForm(request.POST)
     if form.is_valid():
-        print("comment form valid")
         comment = form.save(commit=False)
         comment.book = book
         comment.author = request.user
@@ -51,12 +55,11 @@ def product_page(request, pk):
         else:
             book.score = (book.score + comment.score) / 2.0
         book.save()
-    print(form.errors)
     
     return redirect("product_page", pk=pk)
 
 
-def _compute_similarity_score(text1, text2, comp="difflib"):
+def _compute_similarity_score(text1, text2, comp="basic"):
     if comp == "basic":
         text1_set = {word.lower() for word in text1.split()}
         text2_set = {word.lower() for word in text2.split()}
@@ -88,9 +91,9 @@ def search_page(request):
             books = [book_meta[0] for book_meta in books if book_meta[1] > 0.1]
 
         if sort == "popularity":
-            books.sort(key=lambda book: book.holders_count)
-        elif sort == "score":
-            books.sort(key=lambda book: book.score)
+            books.sort(key=lambda book: book.holders_count, reverse=True)
+        elif sort == "reviews":
+            books.sort(key=lambda book: book.score, reverse=True)
 
     else:
         raise Http404
@@ -186,14 +189,11 @@ def shopping_cart_submit(request):
 def shopping_cart_add(request):
     form = CartForm(request.POST)
     if not form.is_valid():
-        print(form.errors)
-        print("not valid add")
         return redirect("/")
     book_pk = form.cleaned_data.get("book_pk")
     try:
         book = Book.objects.get(pk=book_pk)
     except Book.DoesNotExists:
-        print("not valid add, not exists book")
         return redirect("/")
 
     request.user.shopping_cart.add(book)
